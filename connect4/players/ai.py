@@ -6,6 +6,7 @@ from connect4.utils import get_pts, get_valid_actions, Integer
 import sys
 
 
+
 class AIPlayer:
     def __init__(self, player_number: int, time: int):
         """
@@ -34,7 +35,57 @@ class AIPlayer:
         :return: action (0 based index of the column and if it is a popout move)
         """
         # Do the rest of your implementation here
-        raise NotImplementedError('Whoops I don\'t know what to do')
+
+        final_move = (-1,False)      # Initialisation
+        # final_move = (0,False)      # Initialisation
+
+        # Depth limited DFS
+        def dfs(node, depth_limit):
+            
+            # final_move = (-1,False)
+            valid_moves = get_valid_actions(self.player_number, node.state)     # List of valid moves
+        
+            # Leaf State
+            if depth_limit == 0 or len(valid_moves) == 0:                       # If depth limit reached or no valid moves
+                
+                # Backtrack to update scores for each parent
+                child_score = get_pts(self.player_number, node.state[0])
+                curr = node.parent
+                prev_child = node
+                
+                while curr is not None:
+
+                    if curr.isMax == False:
+                        curr.value = min(curr.value, child_score)
+                    else :
+                        if (curr.parent == None) and (child_score > curr.value):
+                            nonlocal final_move
+                            final_move = prev_child.action
+                        curr.value = max(curr.value, child_score)
+
+                    child_score = get_pts(self.player_number, curr.state[0])
+                    prev_child = curr
+                    curr  = curr.parent
+                
+                print('modified final_move = ', final_move)
+                
+            else:
+                
+                # Non Leaf State
+
+                # new_node_list = []
+                for move in valid_moves:
+                    new_node = node.transition(move, self.player_number)
+                    dfs(new_node, depth_limit - 1)
+
+
+        depth_limit = 2
+        root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False))
+        dfs(root_node, depth_limit)
+
+        print('best_move = ', final_move)
+        return final_move
+        #raise NotImplementedError('Whoops I don\'t know what to do')
 
     def get_expectimax_move(self, state: Tuple[np.array, Dict[int, Integer]]) -> Tuple[int, bool]:
         """
@@ -56,15 +107,13 @@ class AIPlayer:
 
         # Do the rest of your implementation here
 
-        # parent_dict = {}            # Dictionary for maintaininng parents of each state
-        # values_dict = {}            # Dictionary for maintaining utilities of each state
-        # minmax_dict = {}            # Dicitonary for deciding min (false) or max (true) node
-        # state_action_dict = {}      # Dictionary which maps a state to the corresponding action from the root state
-
         final_move = (-1,False)      # Initialisation
+        # final_move = (0,False)      # Initialisation
 
         # Depth limited DFS
         def dfs(node, depth_limit):
+            
+            # final_move = (-1,False)
             valid_moves = get_valid_actions(self.player_number, node.state)     # List of valid moves
         
             # Leaf State
@@ -75,24 +124,21 @@ class AIPlayer:
                 curr = node.parent
                 prev_child = node
                 
-                while curr != None:
+                while curr is not None:
 
                     if curr.isMax == False:
                         curr.value = min(curr.value, child_score)
                     else :
                         if (curr.parent == None) and (child_score > curr.value):
-                            #global final_state
-                            global final_move
-                            #final_state = prev_child
+                            nonlocal final_move
                             final_move = prev_child.action
                         curr.value = max(curr.value, child_score)
 
-
-                    
-                        
                     child_score = get_pts(self.player_number, curr.state[0])
                     prev_child = curr
                     curr  = curr.parent
+                
+                print('modified final_move = ', final_move)
                 
             else:
                 
@@ -102,46 +148,13 @@ class AIPlayer:
                 for move in valid_moves:
                     new_node = node.transition(move, self.player_number)
                     dfs(new_node, depth_limit - 1)
-                    
-                    # new_s = s       # New state generated after valid move
-                    # board, popout_dict = s
-                    # col, isPopout = move
-                    # r = board.shape[0]     # No of Rows in board array
-                    # c = board.shape[1]     # No of Columns in board array
-
-                    # if isPopout == True:     # Pop out move - we need to change the pop out dictionary as well as the state table
-                    #     popout_dict[self.player_number].decrement()
-
-                    #     board[:,col] = [0].extend(board[:,col][:-1])        # Update the board state
-                        
-                        
-                        
 
 
-                        
-                    # else:       # Normal move
-                    #     for row in range(r-1,-1,-1):
-                    #         if board[row][col] == 0: # Adding player token in bottomost unfilled row
-                    #             board[row][col] = self.player_number
-                    #             break
-
-                    # new_s = (board, popout_dict)
-                    # minmax_dict[new_s] = not minmax_dict[s]     # Change the minmax value for the new state
-                    # parent_dict[new_s] = s                      # Update the parent of the new state
-                     
-                    # new_node_list.append(new_node)
-
-                
-                # # Recursively run DFS on the new states
-                
-                # for new_state in new_node_list:
-                #     dfs(new_state, depth_limit - 1) 
-
-
-        depth_limit = 2
+        depth_limit = 10000000000
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False))
         dfs(root_node, depth_limit)
 
+        print('best_move = ', final_move)
         return final_move
         #raise NotImplementedError('Whoops I don\'t know what to do')
         
