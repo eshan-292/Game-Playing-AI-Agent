@@ -1,3 +1,0 @@
-Game Over
-Player 1 Score: 0
-Player 2 Score: 356
