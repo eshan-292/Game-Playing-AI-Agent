@@ -53,9 +53,98 @@ class AIPlayer:
         """
         # Do the rest of your implementation here
 
-        
+        parent_dict = {}            # Dictionary for maintaininng parents of each state
+        values_dict = {}            # Dictionary for maintaining utilities of each state
+        minmax_dict = {}            # Dicitonary for deciding min (false) or max (true) node
+        state_action_dict = {}      # Dictionary which maps a state to the corresponding action from the root state
+
+        final_move = (-1,False)      # Initialisation
+
+        def dfs(s):
+            valid_moves = get_valid_actions(self.player_number, s)     # List of valid moves
+            
+            if len(valid_moves) == 0:       # Leaf State
+                
+                # Backtrack to update scores for each parent
+                child_score = get_pts(self.player_number, s[0])
+                
+                curr = parent_dict[s]
+
+                prev_child = s
+
+                
+                
+                while curr != None:
+
+                    if minmax_dict[curr] == False:
+                        values_dict[curr] = min(values_dict[curr], child_score)
+                    else :
+                        if (parent_dict[curr] == None) and (child_score > values_dict[curr]):
+                            #global final_state
+                            global final_move
+                            #final_state = prev_child
+                            final_move = state_action_dict[prev_child]
+                        values_dict[curr] = max(values_dict[curr], child_score)
 
 
+                    
+                        
+                    child_score = get_pts(self.player_number, curr[0])
+                    
+                    prev_child = curr
+
+                    curr  = parent_dict[curr]
+                
+            else:
+                
+                # Non Leaf State
+
+                new_state_list = []
+                for move in valid_moves:
+                    new_s = s       # New state generated after valid move
+                    board, popout_dict = s
+                    col, isPopout = move
+                    r = board.shape[0]     # No of Rows in board array
+                    c = board.shape[1]     # No of Columns in board array
+
+                    if isPopout == True:     # Pop out move - we need to change the pop out dictionary as well as the state table
+                        popout_dict[self.player_number].decrement()
+
+                        board[:,col] = [0].extend(board[:,col][:-1])        # Update the board state
+                        
+                        
+                        
+
+
+                        
+                    else:       # Normal move
+                        for row in range(r-1,-1,-1):
+                            if board[row][col] == 0: # Adding player token in bottomost unfilled row
+                                board[row][col] = self.player_number
+                                break
+
+                    new_s = (board, popout_dict)
+                    minmax_dict[new_s] = not minmax_dict[s]     # Change the minmax value for the new state
+                    parent_dict[new_s] = s                      # Update the parent of the new state
+
+
+
+                    if parent_dict[s] == None:      # Checking if we are at the root state
+                        state_action_dict[new_s] = move
+                    
+                    new_state_list.append(new_s)
+
+                
+                # Recursively run DFS on the new states
+                
+                for new_state in new_state_list:
+                    dfs(new_state) 
+
+
+
+
+        parent_dict[state] = None
+        dfs(state)
 
 
         #raise NotImplementedError('Whoops I don\'t know what to do')
