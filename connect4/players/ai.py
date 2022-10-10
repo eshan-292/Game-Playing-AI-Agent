@@ -138,7 +138,7 @@ class AIPlayer:
                 #     dfs(new_state, depth_limit - 1) 
 
 
-        depth_limit = 10
+        depth_limit = 2
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False))
         dfs(root_node, depth_limit)
 

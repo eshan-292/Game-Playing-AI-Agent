@@ -7,3 +7,4 @@ connect4/players/__pycache__/
 
 # Redundant files
 .DS_Store
+logs.txt
