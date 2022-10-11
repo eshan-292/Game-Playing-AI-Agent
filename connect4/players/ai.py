@@ -44,6 +44,7 @@ class AIPlayer:
         # Depth limited DFS
         def dfs(node:TreeNode, depth_limit):
             nonlocal total_states
+            nonlocal final_move
             # final_move = (-1,False)
             # nonlocal root_node
             # print("Root state: ", root_node.state[0])
@@ -56,7 +57,8 @@ class AIPlayer:
                 else:
                     player_number = 1
                 
-            
+            print("Player Number : ", player_number)
+            print("IsMax : ", node.isMax)
             valid_moves = get_valid_actions(player_number, node.state)     # List of valid moves
             total_states = total_states+ len(valid_moves)
 
@@ -72,14 +74,18 @@ class AIPlayer:
                 prev_child = node
                 
                 while curr is not None:
-                    print("SEX")
+                    # print("SEX")          
+                    print("child score is = ", child_score)
+                          
                     if curr.isMax == False:
+                        print('min curr value = ', curr.value)  
                         curr.value = min(curr.value, child_score)
                         # curr.value += (child_score/curr.numChildren)
                     else :
-                        if (curr.parent == None) and (child_score > curr.value):
-                            nonlocal final_move
+                        print('max curr value = ', curr.value)                            
+                        if (curr.parent == None) and child_score > curr.value:
                             final_move = prev_child.action
+                            print("Final Move updated to : ", final_move)
                         curr.value = max(curr.value, child_score)
 
                     # Updating the player number
@@ -90,6 +96,7 @@ class AIPlayer:
 
                     #Updating the child and curr parameters
                     child_score = get_pts(curr_player_number, curr.state[0])
+                    print('curr state board = ', curr.state[0])
                     prev_child = curr
                     curr  = curr.parent
                 
@@ -105,7 +112,7 @@ class AIPlayer:
                     dfs(new_node, depth_limit - 1)
 
 
-        depth_limit = 100
+        depth_limit = 2
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
         
         dfs(root_node, depth_limit)
@@ -225,15 +232,13 @@ class TreeNode:
     def transition(self, action:Tuple[int, bool], player_number:int):
         board = self.state[0].copy()
         popout_dict = self.state[1].copy()
+        print('init board = ', board)
         col, isPopout = action
         r = board.shape[0]     # No of Rows in board array
         #c = board.shape[1]     # No of Columns in board array
         if isPopout == True:     # Pop out move - we need to change the pop out dictionary as well as the state table
             popout_dict[player_number].decrement()
             board[:,col] = [0].extend(board[:,col][:-1])        # Update the board state
-            
-            
-            
             
         else:       # Normal move
             for row in range(r-1,-1,-1):
@@ -242,11 +247,18 @@ class TreeNode:
                     break
         new_s = (board, popout_dict)      
 
-
         new_value = 0
         if(self.isMax): 
             new_value = - sys.maxsize
         # else:
         #     new_value = 0
         next_node = TreeNode(state=new_s, value = new_value, isMax= not self.isMax, parent= self, action= action, numChildren=0) 
+        print('final board = ', next_node.state[0])
+
         return next_node    
+
+    def copy(self):
+        state_dup = (self.state[0].copy(), self.state[1].copy())
+        parent_dup = None
+        node_dup = TreeNode(state=state_dup,value=self.value,isMax=self.isMax, parent=parent_dup, action=self.action,numChildren=self.numChildren)
+        return node_dup
