@@ -1,3 +1,13 @@
+# TODO:
+# 1. Implement alpha beta pruning 
+# 2. Maximise teh diff btw scores instead of just maximising the current player's score
+# 3. Build a clever heuristic function to greedily prune the search tree (smthng like local beam search)
+# 4. Find a good approximation for the scores of virtual leaf nodes
+# 5. Reduce the no of backtracking operations 
+
+
+
+
 import random
 from xmlrpc.client import boolean
 import numpy as np
@@ -74,7 +84,6 @@ class AIPlayer:
                 prev_child = node
                 
                 while curr is not None:
-                    # print("SEX")          
                     print("child score is = ", child_score)
                           
                     if curr.isMax == False:
@@ -112,7 +121,7 @@ class AIPlayer:
                     dfs(new_node, depth_limit - 1)
 
 
-        depth_limit = 2
+        depth_limit = 10
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
         
         dfs(root_node, depth_limit)
@@ -143,6 +152,7 @@ class AIPlayer:
         # Do the rest of your implementation here
 
         
+       
         total_states = 1
         final_move = (-1,False)      # Initialisation
         # final_move = (0,False)      # Initialisation
@@ -150,9 +160,10 @@ class AIPlayer:
         # Depth limited DFS
         def dfs(node:TreeNode, depth_limit):
             nonlocal total_states
-            nonlocal root_node
-            print("Root state: ", root_node.state[0])
+            nonlocal final_move
             # final_move = (-1,False)
+            # nonlocal root_node
+            # print("Root state: ", root_node.state[0])
             
             # Setting the player number
             player_number = self.player_number
@@ -162,7 +173,8 @@ class AIPlayer:
                 else:
                     player_number = 1
                 
-            
+            print("Player Number : ", player_number)
+            print("IsMax : ", node.isMax)
             valid_moves = get_valid_actions(player_number, node.state)     # List of valid moves
             total_states = total_states+ len(valid_moves)
 
@@ -178,14 +190,17 @@ class AIPlayer:
                 prev_child = node
                 
                 while curr is not None:
-                    
+                    print("child score is = ", child_score)
+                          
                     if curr.isMax == False:
-                        # curr.value = min(curr.value, child_score)
-                        curr.value += (child_score/curr.numChildren)
+                        print('min curr value = ', curr.value)  
+                        curr.value = min(curr.value, child_score)
+                        # curr.value += (child_score/curr.numChildren)
                     else :
-                        if (curr.parent == None) and (child_score > curr.value):
-                            nonlocal final_move
+                        print('max curr value = ', curr.value)                            
+                        if (curr.parent == None) and child_score > curr.value:
                             final_move = prev_child.action
+                            print("Final Move updated to : ", final_move)
                         curr.value = max(curr.value, child_score)
 
                     # Updating the player number
@@ -196,6 +211,7 @@ class AIPlayer:
 
                     #Updating the child and curr parameters
                     child_score = get_pts(curr_player_number, curr.state[0])
+                    print('curr state board = ', curr.state[0])
                     prev_child = curr
                     curr  = curr.parent
                 
@@ -211,8 +227,9 @@ class AIPlayer:
                     dfs(new_node, depth_limit - 1)
 
 
-        depth_limit = 10
+        depth_limit = 3
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
+        
         dfs(root_node, depth_limit)
 
         print('Total no of visited states: ', total_states)
