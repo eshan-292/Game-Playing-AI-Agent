@@ -1,6 +1,6 @@
 # TODO:
 # 1. Implement alpha beta pruning 
-# 2. Maximise teh diff btw scores instead of just maximising the current player's score
+# 2. Maximise the diff btw scores instead of just maximising the current player's score
 # 3. Build a clever heuristic function to greedily prune the search tree (smthng like local beam search)
 # 4. Find a good approximation for the scores of virtual leaf nodes
 # 5. Reduce the no of backtracking operations 
@@ -67,8 +67,8 @@ class AIPlayer:
                 else:
                     player_number = 1
                 
-            print("Player Number : ", player_number)
-            print("IsMax : ", node.isMax)
+            #print("Player Number : ", player_number)
+            #print("IsMax : ", node.isMax)
             valid_moves = get_valid_actions(player_number, node.state)     # List of valid moves
             total_states = total_states+ len(valid_moves)
 
@@ -84,14 +84,14 @@ class AIPlayer:
                 prev_child = node
                 
                 while curr is not None:
-                    print("child score is = ", child_score)
+                    #print("child score is = ", child_score)
                           
                     if curr.isMax == False:
-                        print('min curr value = ', curr.value)  
+                        #print('min curr value = ', curr.value)  
                         curr.value = min(curr.value, child_score)
                         # curr.value += (child_score/curr.numChildren)
                     else :
-                        print('max curr value = ', curr.value)                            
+                        #print('max curr value = ', curr.value)                            
                         if (curr.parent == None) and child_score > curr.value:
                             final_move = prev_child.action
                             print("Final Move updated to : ", final_move)
@@ -105,11 +105,11 @@ class AIPlayer:
 
                     #Updating the child and curr parameters
                     child_score = get_pts(curr_player_number, curr.state[0])
-                    print('curr state board = ', curr.state[0])
+                    #print('curr state board = ', curr.state[0])
                     prev_child = curr
                     curr  = curr.parent
                 
-                print('modified final_move = ', final_move)
+                #print('modified final_move = ', final_move)
                 
             else:
                 
@@ -121,13 +121,13 @@ class AIPlayer:
                     dfs(new_node, depth_limit - 1)
 
 
-        depth_limit = 10
+        depth_limit = 4
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
         
         dfs(root_node, depth_limit)
 
-        print('Total no of visited states: ', total_states)
-        print('best_move = ', final_move)
+        # print('Total no of visited states: ', total_states)
+        # print('best_move = ', final_move)
         return final_move
         #raise NotImplementedError('Whoops I don\'t know what to do')
 
@@ -227,7 +227,7 @@ class AIPlayer:
                     dfs(new_node, depth_limit - 1)
 
 
-        depth_limit = 3
+        depth_limit = 4
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
         
         dfs(root_node, depth_limit)
@@ -249,7 +249,7 @@ class TreeNode:
     def transition(self, action:Tuple[int, bool], player_number:int):
         board = self.state[0].copy()
         popout_dict = self.state[1].copy()
-        print('init board = ', board)
+        #print('init board = ', board)
         col, isPopout = action
         r = board.shape[0]     # No of Rows in board array
         #c = board.shape[1]     # No of Columns in board array
@@ -266,11 +266,11 @@ class TreeNode:
 
         new_value = 0
         if(self.isMax): 
-            new_value = - sys.maxsize
+            new_value = sys.maxsize
         # else:
         #     new_value = 0
         next_node = TreeNode(state=new_s, value = new_value, isMax= not self.isMax, parent= self, action= action, numChildren=0) 
-        print('final board = ', next_node.state[0])
+        #print('final board = ', next_node.state[0])
 
         return next_node    
 
