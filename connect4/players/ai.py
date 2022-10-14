@@ -121,7 +121,7 @@ class AIPlayer:
                     dfs(new_node, depth_limit - 1)
 
 
-        depth_limit = 4
+        depth_limit = 10
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
         
         dfs(root_node, depth_limit)
@@ -227,7 +227,7 @@ class AIPlayer:
                     dfs(new_node, depth_limit - 1)
 
 
-        depth_limit = 4
+        depth_limit = 3
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
         
         dfs(root_node, depth_limit)
@@ -266,7 +266,7 @@ class TreeNode:
 
         new_value = 0
         if(self.isMax): 
-            new_value = sys.maxsize
+            new_value = - sys.maxsize
         # else:
         #     new_value = 0
         next_node = TreeNode(state=new_s, value = new_value, isMax= not self.isMax, parent= self, action= action, numChildren=0) 
