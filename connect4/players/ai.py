@@ -12,7 +12,7 @@
 import random
 from xmlrpc.client import boolean
 import numpy as np
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, final
 from connect4.utils import get_pts, get_valid_actions, Integer
 import sys
 
@@ -52,14 +52,116 @@ class AIPlayer:
         final_move = (-1,False)      # Initialisation
         # final_move = (0,False)      # Initialisation
 
-        # Depth limited DFS
-        def dfs(node:TreeNode, depth_limit):
-            nonlocal total_states
-            nonlocal final_move
-            # final_move = (-1,False)
-            # nonlocal root_node
-            # print("Root state: ", root_node.state[0])
+
+
+
+
+        # # Without alpha beta pruning
+
+
+        # def max_value(node, depth_limit, valid_moves, player_number):
+        #     best_move = (-1,False)
+        #     for move in valid_moves:
+        #         new_node = node.transition(move, player_number)
+        #         v = value(new_node, depth_limit - 1)
+        #         if v > node.value:
+        #             best_move = move
+        #         node.value = max(v, node.value)
+        #     nonlocal max_d
+        #     nonlocal final_move
+        #     if max_d == depth_limit:
+        #         final_move = best_move             
+        #     return node.value
+
+        # def min_value(node, depth_limit, valid_moves, player_number):
+        #     for move in valid_moves:
+        #         new_node = node.transition(move, player_number)
+        #         v = value(new_node, depth_limit - 1)
+        #         node.value = min(v, node.value)
+        #     return node.value
+
+        # # Depth limited value
+        # def value(node:TreeNode, depth_limit):
+        #     nonlocal final_move
             
+        #     # Setting the player number
+        #     player_number = self.player_number
+        #     if node.isMax == False:
+        #         if self.player_number==1:
+        #             player_number = 2
+        #         else:
+        #             player_number = 1
+                
+        #     #print("Player Number : ", player_number)
+        #     #print("IsMax : ", node.isMax)
+        #     valid_moves = get_valid_actions(player_number, node.state)     # List of valid moves
+        #     #total_states = total_states+ len(valid_moves)
+
+        #     node.numChildren += len(valid_moves)        # Incrementing no of children of node
+        
+        #     # Leaf State
+        #     if depth_limit == 0 or len(valid_moves) == 0:                       # If depth limit reached or no valid moves
+        #         node.value = get_pts(self.player_number, node.state[0])
+        #         return node.value
+                
+        #     else:
+                
+        #         # Non Leaf State
+
+        #         # # new_node_list = []
+        #         # for move in valid_moves:
+        #         #     new_node = node.transition(move, player_number)
+        #         #     value(new_node, depth_limit - 1)
+
+
+        #         if node.isMax:
+        #             return max_value(node, depth_limit, valid_moves, player_number)
+        #         else:
+        #             return min_value(node, depth_limit, valid_moves, player_number)
+
+
+
+
+
+
+
+        # With alpha beta pruning
+
+        
+        def max_value(node, depth_limit, valid_moves, player_number, alpha, beta):
+            best_move = (-1,False)
+            for move in valid_moves:
+                new_node = node.transition(move, player_number)
+                v = value(new_node, depth_limit - 1,alpha, beta)
+                if v > node.value:
+                    best_move = move
+                node.value = max(v, node.value)
+                if node.value >= beta:
+                    return node.value
+                alpha = max(alpha, node.value)
+            nonlocal max_d
+            nonlocal final_move
+            if max_d == depth_limit:
+                final_move = best_move             
+            return node.value
+
+        def min_value(node, depth_limit, valid_moves, player_number,alpha, beta):
+            for move in valid_moves:
+                new_node = node.transition(move, player_number)
+                v = value(new_node, depth_limit - 1,alpha, beta)
+                node.value = min(v, node.value)
+
+                if node.value <= alpha:
+                    return node.value
+                beta = min(beta, node.value)
+
+            return node.value
+
+        # Depth limited value
+        def value(node:TreeNode, depth_limit, alpha, beta):
+            nonlocal final_move
+            #nonlocal total_states
+
             # Setting the player number
             player_number = self.player_number
             if node.isMax == False:
@@ -71,70 +173,39 @@ class AIPlayer:
             #print("Player Number : ", player_number)
             #print("IsMax : ", node.isMax)
             valid_moves = get_valid_actions(player_number, node.state)     # List of valid moves
-            total_states = total_states+ len(valid_moves)
+            #total_states = total_states+ len(valid_moves)
 
             node.numChildren += len(valid_moves)        # Incrementing no of children of node
         
             # Leaf State
             if depth_limit == 0 or len(valid_moves) == 0:                       # If depth limit reached or no valid moves
-                
-                
-                curr_player_number = player_number
-                child_score = get_pts(self.player_number, node.state[0])
-                curr = node.parent
-                prev_child = node
-
-                
-                # Backtrack to update scores for each parent
-                while curr is not None:
-                    #print("child score is = ", child_score)
-                    # print("Depth: ", depth_limit)      
-                    # print("Current player number: ", curr_player_number)
-                    # print("Child Score: ", child_score)
-                    # print("Prev Child: ", prev_child)      
-
-
-                    if curr.isMax == False:
-                        print('min curr value = ', curr.value)  
-                        curr.value = min(curr.value, child_score)
-                        # curr.value += (child_score/curr.numChildren)
-                    else :
-                        #print('max curr value = ', curr.value)                            
-                        if (curr.parent == None) and child_score > curr.value:
-                            final_move = prev_child.action
-                            print("Final Move updated to : ", final_move)
-                        curr.value = max(curr.value, child_score)
-
-                    # Updating the player number
-                    if curr_player_number==1:
-                        curr_player_number = 2
-                    else:
-                        curr_player_number = 1
-
-                    # Updating the child and curr parameters
-                    
-                    #child_score = get_pts(self.player_number, curr.state[0])
-                    child_score = curr.value
-                    #print('curr state board = ', curr.state[0])
-                    prev_child = curr
-                    curr  = curr.parent
-                
-                #print('modified final_move = ', final_move)
+                node.value = get_pts(self.player_number, node.state[0])
+                return node.value
                 
             else:
                 
                 # Non Leaf State
 
-                # new_node_list = []
-                for move in valid_moves:
-                    new_node = node.transition(move, player_number)
-                    dfs(new_node, depth_limit - 1)
+                # # new_node_list = []
+                # for move in valid_moves:
+                #     new_node = node.transition(move, player_number)
+                #     value(new_node, depth_limit - 1)
 
 
-        depth_limit = 4
+                if node.isMax:
+                    #total_states = total_states + len(valid_moves)
+                    return max_value(node, depth_limit, valid_moves, player_number, alpha, beta)
+                else:
+                    #total_states = total_states + len(valid_moves)
+                    return min_value(node, depth_limit, valid_moves, player_number, alpha, beta)
+
+
+        depth_limit = 7
+
+        max_d = depth_limit
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
         
-        dfs(root_node, depth_limit)
+        value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
 
         # print('Total no of visited states: ', total_states)
         # print('best_move = ', final_move)
@@ -167,8 +238,8 @@ class AIPlayer:
         final_move = (-1,False)      # Initialisation
         # final_move = (0,False)      # Initialisation
 
-        # Depth limited DFS
-        def dfs(node:TreeNode, depth_limit):
+        # Depth limited value
+        def value(node:TreeNode, depth_limit):
             nonlocal total_states
             nonlocal final_move
             # final_move = (-1,False)
@@ -243,13 +314,13 @@ class AIPlayer:
                 # new_node_list = []
                 for move in valid_moves:
                     new_node = node.transition(move, player_number)
-                    dfs(new_node, depth_limit - 1)
+                    value(new_node, depth_limit - 1)
 
 
         depth_limit = 4
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
         
-        dfs(root_node, depth_limit)
+        value(root_node, depth_limit)
 
         # print('Total no of visited states: ', total_states)
         # print('best_move = ', final_move)
@@ -265,6 +336,8 @@ class TreeNode:
         self.parent = parent
         self.action = action
         self.numChildren = numChildren
+        # self.alpha = -sys.maxsize
+        # self.beta = sys.maxsize
         
     def transition(self, action:Tuple[int, bool], player_number:int):
         board = self.state[0].copy()
