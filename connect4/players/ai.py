@@ -1,10 +1,11 @@
 # TODO:
-# 1. Implement alpha beta pruning 
+# ++ 1. Implement alpha beta pruning 
 # ++ 2. Maximise the diff btw scores instead of just maximising the current player's score
 # 3. Build a clever heuristic function to greedily prune the search tree (smthng like local beam search)
 # ++ 4. Find a good approximation for the scores of virtual leaf nodes
 # ++ 5. Reduce the no of backtracking operations 
-# -- 6. Try to implement memoisation
+#̶ ̶-̶-̶ ̶6̶.̶ ̶T̶r̶y̶ ̶t̶o̶ ̶i̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶m̶e̶m̶o̶i̶s̶a̶t̶i̶o̶n̶
+# 7. Try to make the depth limit dynamic (based on the conditions - board size, no of popout moves, etc)
 
 
 
@@ -247,7 +248,7 @@ class AIPlayer:
                     return min_value(node, depth_limit, valid_moves, player_number, alpha, beta)
 
 
-        depth_limit = 9
+        depth_limit = 8
 
         max_d = depth_limit
         root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0)
@@ -304,11 +305,13 @@ class AIPlayer:
             return node.value
 
         def expected_value(node, depth_limit, valid_moves, player_number):
+            node.value = 0
             for move in valid_moves:
                 new_node = node.transition(move, player_number)
                 v = value(new_node, depth_limit - 1)
                 # node.value = min(v, node.value)
                 node.value += v/node.numChildren
+            # node.value = (node.value/node.numChildren)
             return node.value
 
         # Depth limited value
@@ -337,7 +340,9 @@ class AIPlayer:
             valid_moves = get_valid_actions(player_number, node.state)     # List of valid moves
             total_states = total_states + len(valid_moves)
 
-            node.numChildren += len(valid_moves)        # Incrementing no of children of node
+            node.numChildren = len(valid_moves)        # Incrementing no of children of node
+
+            # print("Number of children : ", node.numChildren)
         
             # Leaf State
             if depth_limit == 0 or len(valid_moves) == 0:                       # If depth limit reached or no valid moves
@@ -359,7 +364,7 @@ class AIPlayer:
                 else:
                     return expected_value(node, depth_limit, valid_moves, player_number)
 
-        depth_limit = 4
+        depth_limit = 3
 
         max_d = depth_limit
         root_node = TreeNode(state=state, value= - sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0)
@@ -506,16 +511,16 @@ class TreeNode:
         r = board.shape[0]     # No of Rows in board array
         #c = board.shape[1]     # No of Columns in board array
         if isPopout == True:     # Pop out move - we need to change the pop out dictionary as well as the state table
-            print('popouts remaining before = ', popout_dict[player_number].get_int())
+            # print('popouts remaining before = ', popout_dict[player_number].get_int())
             popout_dict[player_number].decrement()
-            print('popouts remaining after = ', popout_dict[player_number].get_int())
-            print('popouts remaining original = ', self.state[1][player_number].get_int())
+            # print('popouts remaining after = ', popout_dict[player_number].get_int())
+            # print('popouts remaining original = ', self.state[1][player_number].get_int())
 
             # print('[].extend(board[:,col][:-1] = ', [0].append(board[:,col][:-1]))
             temp = [0]
             temp.extend(board[:,col][:-1])
             board[:,col] = temp       # Update the board state
-            print('board[:,col] = ', board[:,col])
+            # print('board[:,col] = ', board[:,col])
             
         else:       # Normal move
             for row in range(r-1,-1,-1):
