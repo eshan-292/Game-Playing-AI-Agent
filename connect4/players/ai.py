@@ -10,6 +10,7 @@
 
 
 import random
+from tkinter import E
 from xmlrpc.client import boolean
 import numpy as np
 from typing import List, Tuple, Dict
@@ -162,7 +163,6 @@ class AIPlayer:
         # Do the rest of your implementation here
 
         
-       
         total_states = 1
         final_move = (-1,False)      # Initialisation
         # final_move = (0,False)      # Initialisation
@@ -193,14 +193,14 @@ class AIPlayer:
             # Leaf State
             if depth_limit == 0 or len(valid_moves) == 0:                       # If depth limit reached or no valid moves
                 
-                # Backtrack to update scores for each parent
+                
                 curr_player_number = player_number
                 child_score = get_pts(self.player_number, node.state[0])
                 curr = node.parent
                 prev_child = node
 
                 
-                
+                # Backtrack to update scores for each parent
                 while curr is not None:
                     #print("child score is = ", child_score)
                     # print("Depth: ", depth_limit)      
@@ -210,9 +210,9 @@ class AIPlayer:
 
 
                     if curr.isMax == False:
-                        print('min curr value = ', curr.value)  
-                        curr.value = min(curr.value, child_score)
-                        # curr.value += (child_score/curr.numChildren)
+                        print('expected curr value = ', curr.value)  
+                        # curr.value = min(curr.value, child_score)
+                        curr.value += (child_score/curr.numChildren)
                     else :
                         #print('max curr value = ', curr.value)                            
                         if (curr.parent == None) and child_score > curr.value:
@@ -226,7 +226,7 @@ class AIPlayer:
                     else:
                         curr_player_number = 1
 
-                    #Updating the child and curr parameters
+                    # Updating the child and curr parameters
                     
                     #child_score = get_pts(self.player_number, curr.state[0])
                     child_score = curr.value
@@ -242,9 +242,15 @@ class AIPlayer:
 
                 # new_node_list = []
                 for move in valid_moves:
-                    new_node = node.transition(move, player_number)
-                    dfs(new_node, depth_limit - 1)
-
+                    try:
+                        new_node = node.transition(move, player_number)
+                        dfs(new_node, depth_limit - 1)
+                    except: 
+                        print('move : ', move)
+                        print('player_number = ', player_number)
+                        raise Exception
+                    finally: 
+                        pass
 
         depth_limit = 4
         root_node = TreeNode(state=state, value= 0, isMax=True, parent= None, action=(-1,False), numChildren=0)
@@ -254,7 +260,6 @@ class AIPlayer:
         # print('Total no of visited states: ', total_states)
         # print('best_move = ', final_move)
         return final_move
-        #raise NotImplementedError('Whoops I don\'t know what to do')
         #raise NotImplementedError('Whoops I don\'t know what to do')
         
 class TreeNode:
