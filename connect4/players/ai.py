@@ -3,12 +3,15 @@
 # ++ 2. Maximise the diff btw scores instead of just maximising the current player's score
 # 3. Build a clever heuristic function to greedily prune the search tree (smthng like local beam search)
 # ++ 4. Find a good approximation for the scores of virtual leaf nodes
-# ++ 5. Reduce the no of backtracking operations 
-#̶ ̶-̶-̶ ̶6̶.̶ ̶T̶r̶y̶ ̶t̶o̶ ̶i̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶m̶e̶m̶o̶i̶s̶a̶t̶i̶o̶n̶
-# 7. Try to make the depth limit dynamic (based on the conditions - board size, no of popout moves, etc)
-
-
-
+# ~~ 5. Reduce the no of backtracking operations 
+#̶ ̶-̶-̶ ̶6̶.̶ ̶T̶r̶y̶ ̶t̶o̶ ̶i̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶m̶e̶m̶o̶i̶s̶a̶t̶i̶o̶n
+# ~~ 7. Try to make the depth limit dynamic (based on the conditions - board size, no of popout moves, etc)~~ 
+# 8. Use iterative deepening
+# ~~ 9. Sort nodes in descending order to max pruning
+# 10. Modify eval fn - weights of features 
+# 11. Toggle algo depending on whether player 1 or 2
+# 12. Test against naive minimax with pruning
+# 
 
 import random
 from tkinter import E
@@ -18,7 +21,6 @@ from typing import List, Tuple, Dict, final
 from connect4.utils import get_pts, get_valid_actions, Integer
 import sys
 import copy
-
 
 class AIPlayer:
     def __init__(self, player_number: int, time: int):
@@ -138,20 +140,23 @@ class AIPlayer:
 
 
         # With alpha beta pruning
-        def max_value(node, depth_limit, valid_moves, player_number, alpha, beta):           
+        def max_value(node, depth_limit, new_node_list, player_number, alpha, beta):           
             nonlocal max_d
             nonlocal final_move
 
             if max_d == depth_limit:
                 
+
+
                 best_move = (-1,False)
-                for move in valid_moves:
-                    new_node = node.transition(move, player_number)
+                for new_node in new_node_list:
+                    # new_node = node.transition(move, player_number)
                     v = value(new_node, depth_limit - 1,alpha, beta)
                     # print("Child Value: ", v)
                     if v > node.value:
                         
-                        best_move = move
+                        # best_move = move
+                        best_move = new_node.action
                         # print("Best Move: ", best_move)
                     node.value = max(v, node.value)
                     if node.value >= beta:
@@ -165,8 +170,8 @@ class AIPlayer:
             
             else:
 
-                for move in valid_moves:
-                    new_node = node.transition(move, player_number)
+                for new_node in new_node_list:
+                    # new_node = node.transition(move, player_number)
                     v = value(new_node, depth_limit - 1,alpha, beta)
                     # if v > node.value:
                         # best_move = move
@@ -185,9 +190,10 @@ class AIPlayer:
 
             return node.value
 
-        def min_value(node, depth_limit, valid_moves, player_number, alpha, beta):
-            for move in valid_moves:
-                new_node = node.transition(move, player_number)
+        def min_value(node, depth_limit, new_node_list, player_number, alpha, beta):
+
+            for new_node in new_node_list:
+                # new_node = node.transition(move, player_number)
                 v = value(new_node, depth_limit - 1,alpha, beta)
                 node.value = min(v, node.value)
 
@@ -213,7 +219,7 @@ class AIPlayer:
             # Setting the player number
             player_number = self.player_number
             if node.isMax == False:
-                if self.player_number==1:
+                if self.player_number == 1:
                     player_number = 2
                 else:
                     player_number = 1
@@ -221,6 +227,19 @@ class AIPlayer:
             #print("Player Number : ", player_number)
             #print("IsMax : ", node.isMax)
             valid_moves = get_valid_actions(player_number, node.state)     # List of valid moves
+
+            new_node_list = []
+
+            for move in valid_moves:
+                    new_node = node.transition(move, player_number)
+                    new_node.score = get_pts(self.player_number, new_node.state[0]) - get_pts(opponent_player_number, new_node.state[0])
+                    # move_node_dict[new_node] = move
+                    new_node_list.append(new_node)
+
+
+            # new_node_list.sort(key = lambda x : x.score, reverse = True)
+
+
             total_states = total_states+ len(valid_moves)
 
             node.numChildren += len(valid_moves)        # Incrementing no of children of node
@@ -242,19 +261,56 @@ class AIPlayer:
 
                 if node.isMax:
                     #total_states = total_states + len(valid_moves)
-                    return max_value(node, depth_limit, valid_moves, player_number, alpha, beta)
+                    new_node_list.sort(key = lambda x : x.score, reverse = True)
+                    return max_value(node, depth_limit, new_node_list, player_number, alpha, beta)
                 else:
                     #total_states = total_states + len(valid_moves)
-                    return min_value(node, depth_limit, valid_moves, player_number, alpha, beta)
+                    new_node_list.sort(key = lambda x : x.score, reverse = False)
+                    return min_value(node, depth_limit, new_node_list, player_number, alpha, beta)
 
+        valid_moves = get_valid_actions(self.player_number, state)     # List of valid moves
+        b = len(valid_moves)
+        print('branching factor = ', b)
+
+        # if (b > 15) :
+        #     depth_limit = 3 + 2
+        # elif (b == 15) :
+        #     depth_limit = 4+ 2
+        # elif (b == 14) :
+        #     depth_limit = 4 + 2
+        # elif (b == 13) :
+        #     depth_limit = 4 + 2
+        # elif (b == 12) :
+        #     depth_limit = 4 + 2          
+        # elif (b == 11) :
+        #     depth_limit = 5 + 2
+        # elif (b == 10) :
+        #     depth_limit = 5 + 2
+        # elif (b == 9) :
+        #     depth_limit = 6 + 2
+        # elif (b == 8) :
+        #     depth_limit = 6 + 2  
+        # elif (b == 7) :
+        #     depth_limit = 7 + 2
+        # elif (b == 6) :
+        #     depth_limit = 7 + 2
+        # elif (b == 5) :
+        #     depth_limit = 9 + 2
+        # elif (b == 4) :
+        #     depth_limit = 9 + 2
+        # elif (b == 3) :
+        #     depth_limit = 16 + 2
+        # elif (b == 2) :
+        #     depth_limit = 16 + 2          
+        # else :
+        #     depth_limit = 20 + 2   
 
         depth_limit = 8
 
         max_d = depth_limit
-        root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0)
+        root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
         
         # value(root_node, depth_limit)
-
         value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
 
         print('Total no of visited states: ', total_states)
@@ -364,10 +420,45 @@ class AIPlayer:
                 else:
                     return expected_value(node, depth_limit, valid_moves, player_number)
 
-        depth_limit = 3
+        valid_moves = get_valid_actions(self.player_number, state)     # List of valid moves
+        b = len(valid_moves)
+        print('branching factor = ', b)
+
+        if (b > 15) :
+            depth_limit = 3
+        elif (b == 15) :
+            depth_limit = 3
+        elif (b == 14) :
+            depth_limit = 3
+        elif (b == 13) :
+            depth_limit = 3
+        elif (b == 12) :
+            depth_limit = 3          
+        elif (b == 11) :
+            depth_limit = 3
+        elif (b == 10) :
+            depth_limit = 3
+        elif (b == 9) :
+            depth_limit = 4
+        elif (b == 8) :
+            depth_limit = 4  
+        elif (b == 7) :
+            depth_limit = 4
+        elif (b == 6) :
+            depth_limit = 5
+        elif (b == 5) :
+            depth_limit = 5
+        elif (b == 4) :
+            depth_limit = 6
+        elif (b == 3) :
+            depth_limit = 8
+        elif (b == 2) :
+            depth_limit = 8       
+        else :
+            depth_limit = 10
 
         max_d = depth_limit
-        root_node = TreeNode(state=state, value= - sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0)
+        root_node = TreeNode(state=state, value= - sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
         
         value(root_node, depth_limit)
 
@@ -493,13 +584,14 @@ class AIPlayer:
         
         
 class TreeNode:
-    def __init__(self, state: Tuple[np.array, Dict[int, Integer]], value: int, isMax: bool, parent, action:Tuple[int, bool], numChildren:int):
+    def __init__(self, state: Tuple[np.array, Dict[int, Integer]], value: int, isMax: bool, parent, action:Tuple[int, bool], numChildren:int, score:int):
         self.state = state
         self.value = value
         self.isMax = isMax
         self.parent = parent
         self.action = action
         self.numChildren = numChildren
+        self.score = score
         # self.alpha = -sys.maxsize
         # self.beta = sys.maxsize
         
@@ -534,7 +626,7 @@ class TreeNode:
             new_value = sys.maxsize
         # else:
         #     new_value = 0
-        next_node = TreeNode(state=new_s, value = new_value, isMax= not self.isMax, parent= self, action= action, numChildren=0) 
+        next_node = TreeNode(state=new_s, value = new_value, isMax= not self.isMax, parent= self, action= action, numChildren=0, score = 0) 
         #print('final board = ', next_node.state[0])
 
         return next_node    
