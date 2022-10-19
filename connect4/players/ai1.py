@@ -56,8 +56,7 @@ class AIPlayer1:
         start_time =  time.time()
         total_states = 1
         final_move = (-1,False)      # Initialisation
-        worst_case_time = 0.0
-        breaking_time_start = 0.0
+        
 
         # final_move = (0,False)      # Initialisation
 
@@ -216,12 +215,11 @@ class AIPlayer1:
         def value(node:TreeNode, depth_limit, alpha, beta):
             nonlocal final_move
             nonlocal total_states
-            nonlocal breaking_time_start
 
             time_remaining = time_limit - (time.time() - start_time)
 
             if time_remaining < 0.5:
-                breaking_time_start = time.time()
+                
                 raise Exception('Breaking from recursive calls and ending execution')
 
             opponent_player_number = 1
@@ -261,7 +259,7 @@ class AIPlayer1:
         
             # Leaf State
             if depth_limit == 0 or len(valid_moves) == 0:                       # If depth limit reached or no valid moves
-                node.value = get_pts(self.player_number, node.state[0]) - get_pts(opponent_player_number, node.state[0])
+                node.value = 2*get_pts(self.player_number, node.state[0]) - get_pts(opponent_player_number, node.state[0])
                 return node.value
                 
             else:
@@ -336,16 +334,9 @@ class AIPlayer1:
                 # value(root_node, depth_limit)
                 value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
             except : 
-                print('Breaking from recursive calls and ending execution')
-                breaking_time_end = time.time()
                 print('final_move = ', final_move)
                 
-                # print('breaking time = ', breaking_time_end-breaking_time_start)
-                
-                if (breaking_time_end - breaking_time_start) > worst_case_time:
-                    worst_case_time = breaking_time_end - breaking_time_start
-
-                print('worst case time = ', worst_case_time)
+    
 
                     
                 break 
@@ -360,9 +351,7 @@ class AIPlayer1:
                 # print('iteration_time = ', iteration_time)
                 # print('time_remaining = ', time_remaining)
 
-        print("Worst case time = ", worst_case_time)
-
-        return (final_move, worst_case_time)
+        return final_move
         #raise NotImplementedError('Whoops I don\'t know what to do')
 
 
@@ -539,7 +528,6 @@ class AIPlayer1:
                 value(root_node, depth_limit)
                 # value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
             except : 
-                print('Breaking from recursive calls and ending execution')
                 print('final_move = ', final_move)
                 break 
             else :

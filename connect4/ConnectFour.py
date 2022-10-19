@@ -119,7 +119,7 @@ class Game:
             # wait 0.01 sec in between
             sleep(0.01)
             if self.game_over:
-                print("FINAL WORST CASE TIME: ", worst_case_time)
+                # print("FINAL WORST CASE TIME: ", worst_case_time)
                 with open('logs.txt', 'w') as log_file:
                     s = 'Game Over\n'
                     s += f'Player 1 Score: {get_pts(1, self.state[0])}\n'
@@ -156,10 +156,10 @@ class Game:
                     if p.join(self.ai_turn_limit) is None and p.is_alive():
                         p.terminate()
                         raise Exception('Player Exceeded time limit')
-                    action , ti = recv_end.recv()
-                    global worst_case_time
-                    if ti > worst_case_time:
-                        worst_case_time = ti
+                    action  = recv_end.recv()
+                    # global worst_case_time
+                    # if ti > worst_case_time:
+                    #     worst_case_time = ti
                 except Exception as e:
                     uh_oh = 'Uh oh.... something is wrong with Player {}'
                     print(uh_oh.format(current_player.player_number))
