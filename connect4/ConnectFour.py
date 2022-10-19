@@ -33,6 +33,10 @@ def turn_worker(state: Tuple[np.array, Dict[int, Integer]], send_end,
     send_end.send(p_func(state))
 
 
+
+
+worst_case_time = 0
+
 class Game:
     def __init__(self, player1, player2, time: int, board_init: np.array, m: int, n: int, popout_moves: int):
         """
@@ -115,6 +119,7 @@ class Game:
             # wait 0.01 sec in between
             sleep(0.01)
             if self.game_over:
+                print("FINAL WORST CASE TIME: ", worst_case_time)
                 with open('logs.txt', 'w') as log_file:
                     s = 'Game Over\n'
                     s += f'Player 1 Score: {get_pts(1, self.state[0])}\n'
@@ -152,6 +157,7 @@ class Game:
                         p.terminate()
                         raise Exception('Player Exceeded time limit')
                     action , ti = recv_end.recv()
+                    global worst_case_time
                     if ti > worst_case_time:
                         worst_case_time = ti
                 except Exception as e:
