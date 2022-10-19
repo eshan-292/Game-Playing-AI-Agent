@@ -1,0 +1,30 @@
+Eshan Jain - 2020CS50424 ; Si Siddhanth Raja - 2020CS50443
+
+We have implemented modified minimax for get_intelligent_move(self, state) and modified expectimax for get_expectimax_move(self, state). 
+We have implemented a TreeNode class to define the nodes of the search tree. It contains the following attributes -  
+	state: Tuple[np.array, Dict[int, Integer]], 
+    value: int, 
+	isMax: bool, 
+	parent, 
+	action:Tuple[int, bool], 
+	numChildren:int, 
+	score:int
+
+TreeNode class implements a method - transition(self, action:Tuple[int, bool], player_number:int). 
+	Input : current node, move/action and player number
+	Output : resulting state
+
+get_intelligent_move(self, state):
+   We have implemented the following methods/techniques - 
+	0. Depth Limited Minimax 
+	1. Evaluation function = (k*(Own score) - Opponent score). Modified it by adjusting the weights of features i.e. for different values of k. 
+	2. Alpha-beta pruning. Sorting the children of each node before next iteration to maximize pruning.
+	3. Iterative Deepening Search starting with depth limit of 1 and increasing progressively till Time Remaining is greater than a threshold.  
+
+get_expectimax_move(self, state)
+   We have implemented the following methods/techniques - 
+	0. Depth Limited Expectimax
+	1. Evaluation function = (Own score - Opponent score).
+	2. Iterative Deepening Search starting with depth limit of 1 and increasing progressively till Time Remaining is greater than a threshold. 
+
+

@@ -132,7 +132,9 @@ class Game:
                     score1 = get_pts(1, self.state[0])
                     score2 = get_pts(2, self.state[0])
                     margin = (score1 - score2)*100/score1
-                    file.write(str(margin) + '\n')
+                    file.write("Score1: " + str(score1))
+                    file.write("  Score2: " + str(score2))
+                    file.write("  Difference (1-2): "+str(margin) + '\n')
                 sys.exit()
                 break                      
 
