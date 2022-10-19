@@ -151,7 +151,9 @@ class Game:
                     if p.join(self.ai_turn_limit) is None and p.is_alive():
                         p.terminate()
                         raise Exception('Player Exceeded time limit')
-                    action = recv_end.recv()
+                    action , ti = recv_end.recv()
+                    if ti > worst_case_time:
+                        worst_case_time = ti
                 except Exception as e:
                     uh_oh = 'Uh oh.... something is wrong with Player {}'
                     print(uh_oh.format(current_player.player_number))

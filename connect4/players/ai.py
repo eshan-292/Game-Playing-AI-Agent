@@ -1,15 +1,15 @@
 # TODO:
-# ++ 1. Implement alpha beta pruning 
-# ++ 2. Maximise the diff btw scores instead of just maximising the current player's score
+# ~~ 1. Implement alpha beta pruning 
+# ~~ 2. Maximise the diff btw scores instead of just maximising the current player's score
 # 3. Build a clever heuristic function to greedily prune the search tree (smthng like local beam search)
-# ++ 4. Find a good approximation for the scores of virtual leaf nodes
+# ~~ 4. Find a good approximation for the scores of virtual leaf nodes
 # ~~ 5. Reduce the no of backtracking operations 
 #̶ ̶-̶-̶ ̶6̶.̶ ̶T̶r̶y̶ ̶t̶o̶ ̶i̶m̶p̶l̶e̶m̶e̶n̶t̶ ̶m̶e̶m̶o̶i̶s̶a̶t̶i̶o̶n
 # ~~ 7. Try to make the depth limit dynamic (based on the conditions - board size, no of popout moves, etc)~~ 
-# 8. Use iterative deepening
+# ~~ 8. Use iterative deepening
 # ~~ 9. Sort nodes in descending order to max pruning
 # 10. Modify eval fn - weights of features 
-# 11. Toggle algo depending on whether player 1 or 2
+# ~~ 11. Toggle algo depending on whether player 1 or 2
 # 12. Test against naive minimax with pruning
 # 
 
