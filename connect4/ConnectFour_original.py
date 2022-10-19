@@ -18,8 +18,6 @@ from connect4.utils import get_pts, get_valid_actions, Integer
 
 # Local libs
 from connect4.players.ai import AIPlayer
-from connect4.players.ai1 import AIPlayer1
-from connect4.players.ai0 import AIPlayer0
 # from connect4.players.ai2 import AIPlayer as AIPlayer2
 from connect4.players.random import RandomPlayer
 from connect4.players.human import HumanPlayer
@@ -121,11 +119,7 @@ class Game:
                     s += f'Player 2 Score: {get_pts(2, self.state[0])}\n'
                     log_file.write(s)
                     print(s)
-
-                # Modification for learning coeffs
-                with open('scores.txt', 'a') as file:
-                    file.write(str(get_pts(1, self.state[0]) - get_pts(2, self.state[0])) + '\n')
-                break                      
+                break
 
     def make_move(self):
         current_player = self.players[self.current_turn]
@@ -228,10 +222,6 @@ def main(player1: str, player2: str, init_fine_name: str, time: int):
     def make_player(name, num):
         if name == 'ai':
             return AIPlayer(num, time)
-        elif name == 'ai1':
-            return AIPlayer1(num, time)     
-        elif name == 'ai0':
-            return AIPlayer0(num, time)                    
         elif name == 'random':
             return RandomPlayer(num)
         elif name == 'human':
@@ -245,7 +235,7 @@ def main(player1: str, player2: str, init_fine_name: str, time: int):
 
 
 if __name__ == '__main__':
-    player_types = ['ai', 'ai1', 'ai0', 'random', 'human']
+    player_types = ['ai', 'random', 'human']
     parser = argparse.ArgumentParser()
     parser.add_argument('player1', choices=player_types)
     parser.add_argument('player2', choices=player_types)

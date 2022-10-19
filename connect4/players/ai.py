@@ -21,6 +21,7 @@ from typing import List, Tuple, Dict, final
 from connect4.utils import get_pts, get_valid_actions, Integer
 import sys
 import copy
+import time
 
 class AIPlayer:
     def __init__(self, player_number: int, time: int):
@@ -51,13 +52,11 @@ class AIPlayer:
         """
         # Do the rest of your implementation here
 
-        
+        time_limit = self.time
+        start_time =  time.time()
         total_states = 1
         final_move = (-1,False)      # Initialisation
         # final_move = (0,False)      # Initialisation
-
-
-
 
 
         # # Without alpha beta pruning
@@ -209,6 +208,11 @@ class AIPlayer:
             nonlocal final_move
             nonlocal total_states
 
+            # time_remaining = time_limit - (time.time() - start_time)
+
+            # if time_remaining < 0.1:
+            #     return final_move
+
             opponent_player_number = 1
 
             if self.player_number == 1:
@@ -232,7 +236,7 @@ class AIPlayer:
 
             for move in valid_moves:
                     new_node = node.transition(move, player_number)
-                    new_node.score = get_pts(self.player_number, new_node.state[0]) - get_pts(opponent_player_number, new_node.state[0])
+                    new_node.score = 2*get_pts(self.player_number, new_node.state[0]) - get_pts(opponent_player_number, new_node.state[0])
                     # move_node_dict[new_node] = move
                     new_node_list.append(new_node)
 
@@ -305,16 +309,32 @@ class AIPlayer:
         # else :
         #     depth_limit = 20 + 2   
 
-        depth_limit = 8
 
-        max_d = depth_limit
-        root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
-        
-        # value(root_node, depth_limit)
-        value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
+        depth_limit = 2
+        iteration_time = 0
+        time_remaining = time_limit - (time.time() - start_time)
 
-        print('Total no of visited states: ', total_states)
-        print('final_move = ', final_move)
+        while (iteration_time < time_remaining/b):
+            iteration_time = - time.time()
+
+            max_d = depth_limit
+            
+            root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
+            
+            # value(root_node, depth_limit)
+            value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
+            print('depth limit = ', depth_limit)
+            # print('Total no of visited states: ', total_states)
+            # print('final_move = ', final_move)
+
+            depth_limit = depth_limit + 1
+            iteration_time += time.time()
+            time_remaining = time_limit - (time.time() - start_time)
+            
+            print('iteration_time = ', iteration_time)
+            print('time_remaining = ', time_remaining)
+
+
         return final_move
         #raise NotImplementedError('Whoops I don\'t know what to do')
 
@@ -402,7 +422,7 @@ class AIPlayer:
         
             # Leaf State
             if depth_limit == 0 or len(valid_moves) == 0:                       # If depth limit reached or no valid moves
-                node.value = get_pts(self.player_number, node.state[0]) - get_pts(opponent_player_number, node.state[0]) 
+                node.value = 2*get_pts(self.player_number, node.state[0]) - get_pts(opponent_player_number, node.state[0]) 
                 return node.value
                 
             else:
@@ -459,7 +479,6 @@ class AIPlayer:
 
         max_d = depth_limit
         root_node = TreeNode(state=state, value= - sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
-        
         value(root_node, depth_limit)
 
         #value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
