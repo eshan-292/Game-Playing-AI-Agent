@@ -17,7 +17,7 @@ import random
 from tkinter import E
 from xmlrpc.client import boolean
 import numpy as np
-from typing import List, Tuple, Dict, final
+from typing import List, Tuple, Dict
 from connect4.utils import get_pts, get_valid_actions, Integer
 import sys
 import copy

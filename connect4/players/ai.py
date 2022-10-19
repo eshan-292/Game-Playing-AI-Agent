@@ -17,7 +17,7 @@ import random
 from tkinter import E
 from xmlrpc.client import boolean
 import numpy as np
-from typing import List, Tuple, Dict, final
+from typing import List, Tuple, Dict
 from connect4.utils import get_pts, get_valid_actions, Integer
 import sys
 import copy
@@ -150,7 +150,13 @@ class AIPlayer:
                 best_move = (-1,False)
                 for new_node in new_node_list:
                     # new_node = node.transition(move, player_number)
+                    # try:
+                    #     v = value(new_node, depth_limit - 1,alpha, beta)
+                    # except:
+                    #     raise Exception('Time Limit Exceeded')
+                         
                     v = value(new_node, depth_limit - 1,alpha, beta)
+                    
                     # print("Child Value: ", v)
                     if v > node.value:
                         
@@ -208,10 +214,10 @@ class AIPlayer:
             nonlocal final_move
             nonlocal total_states
 
-            # time_remaining = time_limit - (time.time() - start_time)
+            time_remaining = time_limit - (time.time() - start_time)
 
-            # if time_remaining < 0.1:
-            #     return final_move
+            if time_remaining < 1:
+                raise Exception('Time Limit Exceeded')
 
             opponent_player_number = 1
 
@@ -310,29 +316,34 @@ class AIPlayer:
         #     depth_limit = 20 + 2   
 
 
-        depth_limit = 2
+        depth_limit = 3
         iteration_time = 0
         time_remaining = time_limit - (time.time() - start_time)
 
-        while (iteration_time < time_remaining/b):
+        # while (iteration_time < time_remaining/b):
+        while (time_remaining > 1):
             iteration_time = - time.time()
-
             max_d = depth_limit
-            
             root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
             
             # value(root_node, depth_limit)
-            value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
-            print('depth limit = ', depth_limit)
-            # print('Total no of visited states: ', total_states)
-            # print('final_move = ', final_move)
+            try :
+                value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
+            except : 
+                print('Time Limit Exceeded')
+                print('final_move = ', final_move)
+                break 
+            else :
+                print('depth limit = ', depth_limit)
+                # print('Total no of visited states: ', total_states)
+                
 
-            depth_limit = depth_limit + 1
-            iteration_time += time.time()
-            time_remaining = time_limit - (time.time() - start_time)
-            
-            print('iteration_time = ', iteration_time)
-            print('time_remaining = ', time_remaining)
+                depth_limit = depth_limit + 1
+                iteration_time += time.time()
+                time_remaining = time_limit - (time.time() - start_time)
+                
+                print('iteration_time = ', iteration_time)
+                print('time_remaining = ', time_remaining)
 
 
         return final_move

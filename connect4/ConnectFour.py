@@ -124,7 +124,10 @@ class Game:
 
                 # Modification for learning coeffs
                 with open('scores.txt', 'a') as file:
-                    file.write(str(get_pts(1, self.state[0]) - get_pts(2, self.state[0])) + '\n')
+                    score1 = get_pts(1, self.state[0])
+                    score2 = get_pts(2, self.state[0])
+                    margin = (score1 - score2)*100/score1
+                    file.write(str(margin) + '\n')
                 sys.exit()
                 break                      
 
