@@ -56,6 +56,9 @@ class AIPlayer:
         start_time =  time.time()
         total_states = 1
         final_move = (-1,False)      # Initialisation
+        worst_case_time = 0.0
+        breaking_time_start = 0.0
+
         # final_move = (0,False)      # Initialisation
 
 
@@ -213,11 +216,13 @@ class AIPlayer:
         def value(node:TreeNode, depth_limit, alpha, beta):
             nonlocal final_move
             nonlocal total_states
+            nonlocal breaking_time_start
 
             time_remaining = time_limit - (time.time() - start_time)
 
-            if time_remaining < 1:
-                raise Exception('Time Limit Exceeded')
+            if time_remaining < 0.5:
+                breaking_time_start = time.time()
+                raise Exception('Breaking from recursive calls and ending execution')
 
             opponent_player_number = 1
 
@@ -317,34 +322,45 @@ class AIPlayer:
 
 
         depth_limit = 3
-        iteration_time = 0
-        time_remaining = time_limit - (time.time() - start_time)
+        # iteration_time = 0
+        # time_remaining = time_limit - (time.time() - start_time)
 
         # while (iteration_time < time_remaining/b):
-        while (time_remaining > 1):
-            iteration_time = - time.time()
+        while (True):
+            # iteration_time = - time.time()
             max_d = depth_limit
-            root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
-            
-            # value(root_node, depth_limit)
+            root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)            
+            print('depth limit = ', depth_limit)
+
             try :
+                # value(root_node, depth_limit)
                 value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
             except : 
-                print('Time Limit Exceeded')
+                print('Breaking from recursive calls and ending execution')
+                breaking_time_end = time.time()
                 print('final_move = ', final_move)
+                
+                # print('breaking time = ', breaking_time_end-breaking_time_start)
+                
+                if (breaking_time_end - breaking_time_start) > worst_case_time:
+                    worst_case_time = breaking_time_end - breaking_time_start
+
+                print('worst case time = ', worst_case_time)
+
+                    
                 break 
             else :
-                print('depth limit = ', depth_limit)
                 # print('Total no of visited states: ', total_states)
-                
+                print('final_move = ', final_move)
 
                 depth_limit = depth_limit + 1
-                iteration_time += time.time()
-                time_remaining = time_limit - (time.time() - start_time)
+                # iteration_time += time.time()
+                # time_remaining = time_limit - (time.time() - start_time)
                 
-                print('iteration_time = ', iteration_time)
-                print('time_remaining = ', time_remaining)
+                # print('iteration_time = ', iteration_time)
+                # print('time_remaining = ', time_remaining)
 
+        print("Worst case time = ", worst_case_time)
 
         return final_move
         #raise NotImplementedError('Whoops I don\'t know what to do')
@@ -369,7 +385,8 @@ class AIPlayer:
 
         # Do the rest of your implementation here
 
-        
+        time_limit = self.time
+        start_time =  time.time()
         total_states = 1
         final_move = (-1,False)      # Initialisation
         # final_move = (0,False)      # Initialisation
@@ -405,7 +422,11 @@ class AIPlayer:
         def value(node:TreeNode, depth_limit):
             nonlocal final_move
             nonlocal total_states
-            
+
+            time_remaining = time_limit - (time.time() - start_time)            
+
+            if time_remaining < 0.5:
+                raise Exception('Breaking from recursive calls and ending execution')            
 
             opponent_player_number = 1
 
@@ -455,48 +476,80 @@ class AIPlayer:
         b = len(valid_moves)
         print('branching factor = ', b)
 
-        if (b > 15) :
-            depth_limit = 3
-        elif (b == 15) :
-            depth_limit = 3
-        elif (b == 14) :
-            depth_limit = 3
-        elif (b == 13) :
-            depth_limit = 3
-        elif (b == 12) :
-            depth_limit = 3          
-        elif (b == 11) :
-            depth_limit = 3
-        elif (b == 10) :
-            depth_limit = 3
-        elif (b == 9) :
-            depth_limit = 4
-        elif (b == 8) :
-            depth_limit = 4  
-        elif (b == 7) :
-            depth_limit = 4
-        elif (b == 6) :
-            depth_limit = 5
-        elif (b == 5) :
-            depth_limit = 5
-        elif (b == 4) :
-            depth_limit = 6
-        elif (b == 3) :
-            depth_limit = 8
-        elif (b == 2) :
-            depth_limit = 8       
-        else :
-            depth_limit = 10
+        # if (b > 15) :
+        #     depth_limit = 3
+        # elif (b == 15) :
+        #     depth_limit = 3
+        # elif (b == 14) :
+        #     depth_limit = 3
+        # elif (b == 13) :
+        #     depth_limit = 3
+        # elif (b == 12) :
+        #     depth_limit = 3          
+        # elif (b == 11) :
+        #     depth_limit = 3
+        # elif (b == 10) :
+        #     depth_limit = 3
+        # elif (b == 9) :
+        #     depth_limit = 4
+        # elif (b == 8) :
+        #     depth_limit = 4  
+        # elif (b == 7) :
+        #     depth_limit = 4
+        # elif (b == 6) :
+        #     depth_limit = 5
+        # elif (b == 5) :
+        #     depth_limit = 5
+        # elif (b == 4) :
+        #     depth_limit = 6
+        # elif (b == 3) :
+        #     depth_limit = 8
+        # elif (b == 2) :
+        #     depth_limit = 8       
+        # else :
+        #     depth_limit = 10
 
-        max_d = depth_limit
-        root_node = TreeNode(state=state, value= - sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
-        value(root_node, depth_limit)
+        # max_d = depth_limit
+        # root_node = TreeNode(state=state, value= - sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
+        # value(root_node, depth_limit)
 
-        #value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
+        # #value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
 
-        print('Total no of visited states: ', total_states)
-        # print('best_move = ', final_move)
-        return final_move
+        # print('Total no of visited states: ', total_states)
+        # # print('best_move = ', final_move)
+        # return final_move
+
+        depth_limit = 3
+        # iteration_time = 0
+        # time_remaining = time_limit - (time.time() - start_time)
+
+        # while (iteration_time < time_remaining/b):
+        while (True):
+            # iteration_time = - time.time()
+            max_d = depth_limit
+            root_node = TreeNode(state=state, value= -sys.maxsize, isMax=True, parent= None, action=(-1,False), numChildren=0, score = 0)
+            print('depth limit = ', depth_limit)
+            
+            try :
+                value(root_node, depth_limit)
+                # value(root_node, depth_limit, -sys.maxsize, sys.maxsize)
+            except : 
+                print('Breaking from recursive calls and ending execution')
+                print('final_move = ', final_move)
+                break 
+            else :
+                # print('Total no of visited states: ', total_states)
+                print('final_move = ', final_move)
+
+                depth_limit = depth_limit + 1
+                # iteration_time += time.time()
+                # time_remaining = time_limit - (time.time() - start_time)
+                
+                # print('iteration_time = ', iteration_time)
+                # print('time_remaining = ', time_remaining)
+
+
+        return final_move        
         #raise NotImplementedError('Whoops I don\'t know what to do')
 
 
